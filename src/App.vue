@@ -2,7 +2,6 @@
   <div id="app">
     <router-view/>
   </div>
-</template>
+</template >
 <style lang="less">
-</style>
-
+</style >
