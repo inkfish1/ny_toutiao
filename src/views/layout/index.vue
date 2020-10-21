@@ -9,7 +9,9 @@
         <!-- 子组件向父组件传值 -->
         <header-component @parentCollapse='getcollapse'/>
       </el-header>
-      <el-main class="main">Main</el-main>
+      <el-main class="main">
+        <router-view />
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -48,7 +50,6 @@
   background-color: #d3dce6;
 }
 .header{
-  background-color: #b3c0d1;
 }
 .main{
   background-color: #e9eef3;

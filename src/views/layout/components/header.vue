@@ -16,7 +16,8 @@
       </span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item>个人设置</el-dropdown-item>
-        <el-dropdown-item>退出登录</el-dropdown-item>
+        <!-- 自定义组件会出现不能调用原生事件，需要添加native -->
+        <el-dropdown-item @click.native="logout">退出登录</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
   </div>
@@ -34,6 +35,7 @@
         isCollapse:false
       }
     },
+    
     methods: {
       loadUserInfo () {
         getUserInfo().then(res => {
@@ -48,14 +50,29 @@
       collapse () {
         this.isCollapse=!this.isCollapse
         this.$emit('parentCollapse',this.isCollapse)
+      },
 
+      //自定义组件调用退出功能
+      logout () {
+        // 退出弹出框
+        this.$confirm('此操作退出当前用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // 清除localstorage
+          window.localStorage.removeItem('message')
+          // 跳转到登录页面
+          this.$router.push('/login')
+        })
       }
-
-
+      
     },
+    
     created () {
       this.loadUserInfo()
     }
+    
   }
 </script>
 
