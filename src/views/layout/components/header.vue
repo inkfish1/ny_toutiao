@@ -35,12 +35,13 @@
         isCollapse:false
       }
     },
-    
+
     methods: {
       loadUserInfo () {
         getUserInfo().then(res => {
           this.name = res.data.data.name
           this.photo = res.data.data.photo
+          window.localStorage.setItem('Authorization',JSON.stringify(res.config.headers.Authorization))
         }).catch(err => {
           console.log("信息获取不到")
         })
@@ -66,13 +67,13 @@
           this.$router.push('/login')
         })
       }
-      
+
     },
-    
+
     created () {
       this.loadUserInfo()
     }
-    
+
   }
 </script>
 
