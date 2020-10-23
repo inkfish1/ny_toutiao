@@ -52,7 +52,7 @@
     <!-- 筛选的结果展示 -->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>根据筛选条件共查询到 60599 条结果：</span>
+        <span>根据筛选条件共查询到{{ totalcount }}条结果：</span>
       </div>
       <div>
         <!-- table表格组件，注意不需要去v-for遍历，它自己会遍历 -->
@@ -63,14 +63,30 @@
           <el-table-column
             prop=""
             label="封面">
+            <template slot-scope="scope">
+              <img
+              class="article-image"
+              v-if="scope.row.cover.images[0]"
+              :src="scope.row.cover.images[0]"
+               />
+               <img
+               class="article-image"
+               v-else
+               src="./replace.gif"
+                />
+            </template>
           </el-table-column>
           <el-table-column
             prop="title"
             label="标题">
           </el-table-column>
           <el-table-column
-            prop="status"
             label="状态">
+            <template slot-scope="scope">
+              <el-tag :type="review[scope.row.status].type">
+              {{ review[scope.row.status].text }}
+              </el-tag>
+            </template>
           </el-table-column>
           <el-table-column
             prop="pubdate"
@@ -78,6 +94,12 @@
           </el-table-column>
           <el-table-column
             label="操作">
+            <template slot-scope="scope">
+              <el-row>
+                <el-button type="primary" icon="el-icon-edit" plain circle></el-button>
+                <el-button type="danger" icon="el-icon-delete" plain circle></el-button>
+              </el-row>
+            </template>
           </el-table-column>
         </el-table>
       </div>
@@ -86,7 +108,9 @@
       background
       layout="prev, pager, next"
       :total="1000"
-      class="pagination">
+      class="pagination"
+      @current-change="handleCurrentChange"
+      >
       </el-pagination>
       <!-- /分页 -->
     </el-card>
@@ -107,8 +131,18 @@
           channel:'',
           date:''
         },
-        articllists:[]
+        // 用于筛选后的变量
+        articllists: [],
+        totalcount:0,
+        review: [
+          { status: 0, text: '草稿', type: 'info' },
+          { status: 1, text: '待审核', type: '' },
+          { status: 2, text: '审核通过', type: 'success' },
+          { status: 3, text: '审核失败', type: 'warning' },
+          { status: 4, text: '已删除', type: 'danger' },
+        ]
       }
+
     },
     methods: {
       loadArticles () {
@@ -116,12 +150,16 @@
         const Authorization = JSON.parse(window.localStorage.getItem('Authorization'))
         // 将信息传递到axios请求
         getArticleLists(Authorization).then(res => {
+          this.totalcount=res.data.data.total_count
           this.articllists = res.data.data.results
-          console.log(this.articllists[0])
         }).catch(err => {
           console.log('失败')
         })
+      },
+      handleCurrentChange(val){
+        console.log(val);
       }
+
     },
     created () {
       this.loadArticles()
@@ -139,5 +177,9 @@
   .pagination{
     margin-top: 15px;
     text-align: center;
+  }
+  .article-image{
+    width: 150px;
+    height: 100px;
   }
 </style>
