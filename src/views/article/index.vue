@@ -14,34 +14,40 @@
       </div>
       <!-- 筛选条件 -->
       <div>
-        <el-form  :model="screeningForm"  label-width="100px" class="demo-ruleForm">
+        <el-form   label-width="80px" class="demo-ruleForm">
           <el-form-item label="状态:">
-            <el-radio-group v-model="screeningForm.type">
-              <el-radio  label="全部"></el-radio>
-              <el-radio  label="草稿"></el-radio>
-              <el-radio  label="待审核"></el-radio>
-              <el-radio  label="审核通过"></el-radio>
-              <el-radio  label="审核失败"></el-radio>
-              <el-radio  label="已删除"></el-radio>
+            <el-radio-group v-model="status">
+              <el-radio  :label="null">全部</el-radio>
+              <el-radio  :label="0">草稿</el-radio>
+              <el-radio  :label="1">待审核</el-radio>
+              <el-radio  :label="2">审核通过</el-radio>
+              <el-radio  :label="3">审核失败</el-radio>
+              <el-radio  :label="4">已删除</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="频道:"  >
-            <el-select v-model="screeningForm.channel" placeholder="请选择活动区域" clearable>
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+            <el-select v-model="sChannel" placeholder="请选择" clearable>
+              <el-option
+                v-for="item in channel"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="日期:">
             <el-date-picker
-              v-model="screeningForm.date"
+              v-model="sDate"
               type="daterange"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              :default-time="['00:00:00', '23:59:59']">
+              :default-time="['00:00:00', '23:59:59']"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd">
             </el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" >筛选</el-button>
+            <el-button type="primary" :loading="loading" @click="loadArticles">筛选</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -58,22 +64,20 @@
         <!-- table表格组件，注意不需要去v-for遍历，它自己会遍历 -->
         <el-table
           :data="articllists"
+          v-loading="loading"
           stripe
           style="width: 100%">
           <el-table-column
             prop=""
             label="封面">
             <template slot-scope="scope">
-              <img
-              class="article-image"
-              v-if="scope.row.cover.images[0]"
-              :src="scope.row.cover.images[0]"
-               />
-               <img
-               class="article-image"
-               v-else
-               src="./replace.gif"
-                />
+              <div class="block">
+                <el-image
+                :src="scope.row.cover.images[0]"
+                lazy
+                class="article-image"
+                ></el-image>
+              </div>
             </template>
           </el-table-column>
           <el-table-column
@@ -97,7 +101,12 @@
             <template slot-scope="scope">
               <el-row>
                 <el-button type="primary" icon="el-icon-edit" plain circle></el-button>
-                <el-button type="danger" icon="el-icon-delete" plain circle></el-button>
+                <el-button
+                  type="danger"
+                  icon="el-icon-delete"
+                  plain
+                  circle
+                  @click="onDeletArticle(scope.row.id)"></el-button>
               </el-row>
             </template>
           </el-table-column>
@@ -107,7 +116,7 @@
       <el-pagination
       background
       layout="prev, pager, next"
-      :total="1000"
+      :total="totalcount"
       class="pagination"
       @current-change="handleCurrentChange"
       >
@@ -121,48 +130,93 @@
 
 <script>
   // import axios from 'axios'
-  import { getArticleLists } from '@/api/article.js'
+  import { getArticleLists, deletArticle } from '@/api/article.js'
+  import { getChannelLists } from '@/api/channel.js'
   export default{
     name: 'Article',
     data () {
       return {
-        screeningForm: {
-          type:'全部',
-          channel:'',
-          date:''
-        },
+        sDate:null,
+        channel: [],
+        sChannel:null,
+        status: null,
         // 用于筛选后的变量
         articllists: [],
-        totalcount:0,
+        totalcount: 0,
+        page: 1,
         review: [
           { status: 0, text: '草稿', type: 'info' },
           { status: 1, text: '待审核', type: '' },
           { status: 2, text: '审核通过', type: 'success' },
           { status: 3, text: '审核失败', type: 'warning' },
           { status: 4, text: '已删除', type: 'danger' },
-        ]
+        ],
+        loading: true
       }
 
     },
     methods: {
+      loadChannel () {
+         const Authorization = JSON.parse(window.localStorage.getItem('Authorization'))
+         getChannelLists(Authorization).then(res => {
+           this.channel=res.data.data.channels
+         }).catch(err => {
+           console.log('获取频道失败')
+         })
+      },
+
       loadArticles () {
+        this.loading = true
         // 获取保存在localstorage中header头里的验证信息
         const Authorization = JSON.parse(window.localStorage.getItem('Authorization'))
         // 将信息传递到axios请求
-        getArticleLists(Authorization).then(res => {
-          this.totalcount=res.data.data.total_count
+        getArticleLists(Authorization, this.page, this.status, this.sChannel, this.sDate).then(res => {
+          this.totalcount = res.data.data.total_count
           this.articllists = res.data.data.results
+          this.loading = false
+          // console.log(res)
         }).catch(err => {
           console.log('失败')
         })
       },
+
       handleCurrentChange(val){
-        console.log(val);
+        this.page=val
+        this.loadArticles()
+      },
+
+      // 删除按钮,删除文章操作
+      onDeletArticle(id){
+        // 1.传入id删除对应的数据,请求后台删除接口
+          this.$confirm('此操作删除该文章, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            deletArticle(id).then(res => {
+              this.$message({
+                type: 'success',
+                message: '删除成功!',
+              })
+              this.loadArticles()
+            }).catch(err => {
+              this.$message({
+                type: 'error',
+                message: '删除失败!'
+              })
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
       }
 
     },
     created () {
       this.loadArticles()
+      this.loadChannel()
     }
   }
 </script>
