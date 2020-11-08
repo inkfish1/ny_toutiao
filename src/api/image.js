@@ -13,3 +13,20 @@ export const upLoadImage = (data) => {
     data
   })
 }
+
+// 获取素材图片
+// http://ttapi.research.itcast.cn/mp/v1_0/user/images
+export const getImage = (currentpage, pageszie, collect = false) => {
+  return axios ({
+    method: 'GET',
+    url: 'http://ttapi.research.itcast.cn/mp/v1_0/user/images',
+    headers: {
+       Authorization :'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzU5MDM3MDcsInVzZXJfaWQiOjEsInJlZnJlc2giOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZX0.4wW-rjS7HLN_-ED84t7ckdMfWskWTuQnz52JSQDrEz4'
+    },
+    params: {
+      collect,
+      page: currentpage,
+      per_page: pageszie
+    }
+  })
+}

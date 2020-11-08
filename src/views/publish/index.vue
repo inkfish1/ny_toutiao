@@ -47,7 +47,7 @@
       </div>
     </el-card>
   </div>
-</template>一起
+</template>
 
 
 <script>

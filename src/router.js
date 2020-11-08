@@ -8,7 +8,7 @@ import Nprogress from 'nprogress'
 import Home from './views/home/'
 import Article from './views/article'
 import Publish from './views/publish'
-
+import Material from './views/material'
 Vue.use(Router)
 
 const router= new Router({
@@ -18,7 +18,8 @@ const router= new Router({
     children:[
       { path: '', name: 'home', component: Home },
       { path: '/article', name: 'article', component: Article},
-      { path: '/publish', name: 'publish', component: Publish}
+      { path: '/publish', name: 'publish', component: Publish},
+      { path: '/image', name: 'material', component: Material}
     ] }
   ]
 })
