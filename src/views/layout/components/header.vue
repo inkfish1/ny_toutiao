@@ -7,7 +7,7 @@
       }"
       @click="collapse">
       </i>
-      江苏传智播客科技教育有限公司
+      后台管理
     </span>
     <el-dropdown>
       <span class="el-dropdown-link userinfo">
