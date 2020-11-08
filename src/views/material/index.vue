@@ -46,7 +46,14 @@
             <el-image :src="item.url" class="img-op"></el-image>
             <!-- 透明收藏和删除 -->
             <div class="opcity-bar">
-              <i :class="item.is_collected ? 'el-icon-star-off red-color' : 'el-icon-star-off white-color'"></i>
+              <el-button
+                :type="item.is_collected ? 'success' :'warning'"
+                :icon="item.is_collected ? 'el-icon-check' :'el-icon-star-off'"
+                circle size="mini"
+                @click="collectImage(item)"
+                :loading="item.collectloading"
+                ></el-button>
+              <!-- <i :class="item.is_collected ? 'el-icon-star-off red-color' : 'el-icon-star-off white-color'" @click="collectImage(!item.is_collected, item.id)"></i> -->
               <i class="el-icon-delete white-color" @click="deletImage(item.id)"></i>
             </div>
             <!-- /透明收藏和删除 -->
@@ -70,7 +77,7 @@
 
 <script>
   import axios from 'axios'
-  import { getImage } from '@/api/image'
+  import { getImage, deletImageMaterial, collectImageMaterial } from '@/api/image'
   export default {
     name: 'Material',
     data () {
@@ -95,7 +102,11 @@
         getImage(this.currentpage, this.pagesize, this.collect).then(res => {
           // console.log(res)
           this.totalconut = res.data.data.total_count
-          this.imagelists=res.data.data.results
+          const results = res.data.data.results
+          results.forEach(img => {
+            img.collectloading=false
+          })
+          this.imagelists = results
           this.loading = false
         })
 
@@ -116,17 +127,29 @@
       },
       // 删除素材里的图片
       deletImage (id) {
-        // console.log("123")
-        // axios()
-        // axios ({
-        //   method: 'DELETE',
-        //   url: 'http://ttapi.research.itcast.cn/mp/v1_0/user/images/'+id,
-        //   headers: {
-        //      Authorization :'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzU5MDM3MDcsInVzZXJfaWQiOjEsInJlZnJlc2giOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZX0.4wW-rjS7HLN_-ED84t7ckdMfWskWTuQnz52JSQDrEz4'
-        //   }
-        // }).then(res => {
-        //   console.log('123')
-        // })
+       deletImageMaterial(id).then(res => {
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          this.loadMaterial(this.currentpage, this.pagesize)
+        })
+      },
+      // 收藏素材图片
+      collectImage (item) {
+        item.collectloading = true
+        collectImageMaterial( !item.is_collected, item.id ).then(res => {
+          if (!item.is_collected) {
+            this.$message({
+              message: '收藏成功',
+              type: 'success'
+            })
+          }else{
+            this.$message('取消收藏')
+          }
+          this.loadMaterial(this.currentpage, this.pagesize)
+        })
+        item.collectloading = true
       },
       // 上传素材成功
       uploadSuccess(){

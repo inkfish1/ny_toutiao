@@ -30,3 +30,28 @@ export const getImage = (currentpage, pageszie, collect = false) => {
     }
   })
 }
+
+// 删除图片接口
+export const deletImageMaterial = (id) => {
+  return axios({
+    method: 'DELETE',
+    url: 'http://ttapi.research.itcast.cn/mp/v1_0/user/images/'+id,
+    headers: {
+       Authorization :'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzU5MDM3MDcsInVzZXJfaWQiOjEsInJlZnJlc2giOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZX0.4wW-rjS7HLN_-ED84t7ckdMfWskWTuQnz52JSQDrEz4'
+    }
+  })
+}
+
+// 收藏图片接口
+export const collectImageMaterial = ( status, id ) => {
+  return  axios ({
+            method: 'PUT',
+            url: 'http://ttapi.research.itcast.cn/mp/v1_0/user/images/'+id,
+            headers: {
+              Authorization :'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzU5MDM3MDcsInVzZXJfaWQiOjEsInJlZnJlc2giOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZX0.4wW-rjS7HLN_-ED84t7ckdMfWskWTuQnz52JSQDrEz4'
+            },
+            data: {
+              collect: status
+            }
+          })
+}
