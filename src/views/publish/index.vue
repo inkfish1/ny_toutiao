@@ -41,7 +41,8 @@
       </div>
     </el-card>
   </div>
-</template>
+</template>一起
+
 
 <script>
 import { getChannelLists } from '@/api/channel'
