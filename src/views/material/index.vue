@@ -18,7 +18,7 @@
         </el-radio-group>
         <el-button type="success" @click="dialogVisible = true">添加素材</el-button>
         <!-- 弹出框 -->
-        <el-dialog title="上传素材" :visible.sync="dialogVisible" append-to-body="true">
+        <el-dialog title="上传素材" :visible.sync="dialogVisible" :append-to-body="true">
           <el-upload
             class="upload-demo"
             drag
@@ -127,13 +127,8 @@
       },
       // 删除素材里的图片
       deletImage (id) {
-       deletImageMaterial(id).then(res => {
-          this.$message({
-            message: '删除成功',
-            type: 'success'
-          })
-          this.loadMaterial(this.currentpage, this.pagesize)
-        })
+        deletImageMaterial(id)
+        this.loadMaterial(this.currentpage, this.pagesize)
       },
       // 收藏素材图片
       collectImage (item) {
@@ -156,8 +151,6 @@
         this.dialogVisible = false
         this.loadMaterial(this.currentpage, this.pagesize)
       }
-
-
     },
 
     created () {

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import JSONBig from 'json-bigint'
 // 文章请求相关的地址
-export const getArticleLists = (authorization,page,status,channel,date)=>{
+export const getArticleLists = (authorization,page,status,channel,date,responseType)=>{
   return axios ({
     method: 'GET',
     url: 'http://ttapi.research.itcast.cn/mp/v1_0/articles',
@@ -14,7 +14,8 @@ export const getArticleLists = (authorization,page,status,channel,date)=>{
       channel_id:channel,
       status,
       page,
-      pre_page: 10
+      pre_page: 10,
+      response_type:responseType
     },
     // 因为获取的id值超过了int最大表示值,所以需要用bigint
     transformResponse: [function (data) {

@@ -178,7 +178,7 @@
         // 获取保存在localstorage中header头里的验证信息
         const Authorization = JSON.parse(window.localStorage.getItem('Authorization'))
         // 将信息传递到axios请求
-        getArticleLists(Authorization, this.page, this.status, this.sChannel, this.sDate).then(res => {
+        getArticleLists(Authorization, this.page, this.status, this.sChannel, this.sDate, null).then(res => {
           this.totalcount = res.data.data.total_count
           this.articllists = res.data.data.results
           this.loading = false
