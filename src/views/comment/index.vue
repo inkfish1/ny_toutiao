@@ -11,7 +11,12 @@
       <div class="comment-table">
          <el-table
           :data="tableData"
-          style="width: 100%">
+          style="width: 100%"
+          v-loading="loading"
+          element-loading-text="拼命加载中"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.8)"
+          >
           <el-table-column
             prop="title"
             label="标题">
@@ -63,19 +68,23 @@
     data () {
       return {
         tableData: [],
-        totalcount:0
+        totalcount: 0,
+        currentpage: 1,
+        loading: false
       }
     },
 
     methods: {
       // 获取评论列表
       loadComment () {
+        this.loading = true
         const Authorization = JSON.parse(window.localStorage.getItem('Authorization'))
         // 将信息传递到axios请求
-        getArticleLists(Authorization, 1, null, null, null, 'comment').then(res => {
-          console.log(res)
+        getArticleLists(Authorization, this.currentpage, null, null, null, 'comment').then(res => {
+          // console.log(res)
           this.totalcount = res.data.data.total_count
           this.tableData = res.data.data.results
+          this.loading = false
         }).catch(err => {
           console.log('失败')
         })
@@ -104,7 +113,8 @@
       },
       // 分页,页码变化时
       handleCurrentChange (val) {
-        console.log(val)
+        this.currentpage = val
+        this.loadComment()
       }
     },
 

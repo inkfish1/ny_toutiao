@@ -10,6 +10,7 @@ import Article from './views/article'
 import Publish from './views/publish'
 import Material from './views/material'
 import Comment from './views/comment'
+import Setting from './views/setting'
 Vue.use(Router)
 
 const router= new Router({
@@ -21,7 +22,8 @@ const router= new Router({
       { path: '/article', name: 'article', component: Article },
       { path: '/publish', name: 'publish', component: Publish },
       { path: '/image', name: 'material', component: Material },
-      { path: '/comment', name: 'comment', component: Comment }
+      { path: '/comment', name: 'comment', component: Comment },
+      { path: '/setting', name: 'setting', component: Setting }
     ] }
   ]
 })
