@@ -25,7 +25,9 @@
 
 <script>
   import { getUserInfo } from '@/api/user.js'
-  import axios from 'axios'
+  // import axios from 'axios'
+  import { EventBus } from '@/utils/globalbus.js'
+
   export default{
     name: 'HeaderComponent',
     data () {
@@ -72,6 +74,9 @@
 
     created () {
       this.loadUserInfo()
+      EventBus.$on('person-photo',(data) => {
+        this.photo = data
+      })
     }
 
   }

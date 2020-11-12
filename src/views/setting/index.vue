@@ -52,13 +52,14 @@
                 title="修改头像"
                 :visible.sync="dialogVisible"
                 append-to-body
-                @opened="onDialogOpened">
+                @opened="onDialogOpened"
+                >
                 <div>
                   <img :src="previewimg" ref="preview-img" class="previewimg" />
                 </div>
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="dialogVisible = false">取 消</el-button>
-                  <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                  <el-button type="primary" @click="uploadImage">确 定</el-button>
                 </span>
               </el-dialog>
             </el-col>
@@ -72,9 +73,10 @@
 </template>
 
 <script>
-  import { getUserInfo } from '@/api/user'
+  import { getUserInfo, updataPhoto} from '@/api/user'
   import 'cropperjs/dist/cropper.css'
   import Cropper from 'cropperjs'
+  import { EventBus } from '@/utils/globalbus'
   export default{
     name: 'Setting',
     data () {
@@ -99,7 +101,8 @@
         },
         srcList: [],
         dialogVisible: false,
-        previewimg:''
+        previewimg:'',
+        cropper: '',
       }
     },
 
@@ -124,16 +127,35 @@
         const blob = window.URL.createObjectURL(file)
         this.previewimg = blob
         this.dialogVisible = true
-        
+        //如果新图像的大小与旧图像的大小相同，需要重构剪切器，否则只会显示以前的
+
       },
       // 当dialog显示完成没有关闭时此时调用剪切头像组件
       onDialogOpened () {
-        // const image = this.$refs['preview-img']
-        // console.log(this.$refs['preview-img'])
-        // const cropper = new Cropper(this.$refs['preview-img'],{
-        //   aspectRatio: 6 / 9,
-        //   crop(event){}
-        // })
+        if (this.cropper) {
+          this.cropper.replace(this.previewimg)
+          return
+        }
+        const image = this.$refs['preview-img']
+        this.cropper = new Cropper(image ,{
+          viewModel:1,
+          minCropBoxWidth:100,
+          minCropBoxHeight:100
+        })
+      },
+      //上传头像
+      uploadImage () {
+        this.dialogVisible = false
+        this.cropper.getCroppedCanvas({
+           fillColor: '#fff'
+        }).toBlob(blob => {
+          const formData =new FormData()
+          formData.append('photo', blob)
+          updataPhoto(formData).then(res => {
+            this.form.photo = res.data.data.photo
+            EventBus.$emit('person-photo', this.form.photo)
+          })
+        })
       }
     },
 
